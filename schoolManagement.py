@@ -3,7 +3,7 @@ import mysql.connector
 conn = mysql.connector.connect(
     host="localhost",
     user="pyuser",
-    password="Atharva@2007",
+    password="",
     database="test"
 )
 def add_student():
@@ -121,5 +121,5 @@ while True:
         print("Exiting...")
         break
     else:
-        print("Invalid choice")44
+        print("Invalid choice")
 
