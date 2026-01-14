@@ -6,6 +6,7 @@ conn = mysql.connector.connect(
     password="",
     database="test"
 )
+cur = conn.cursor()
 def add_student():
     name = input("Name: ")
     student_class = input("Class: ")
