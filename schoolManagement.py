@@ -1,12 +1,38 @@
 import mysql.connector
 
+# ---------- DATABASE CONNECTION ----------
 conn = mysql.connector.connect(
-    host="localhost",
-    user="pyuser",
+    host="",
+    user="",
     password="",
-    database="test"
+    database=""
 )
+
 cur = conn.cursor()
+
+# ---------- AUTO CREATE TABLES ----------
+cur.execute("""
+CREATE TABLE IF NOT EXISTS students (
+    id INT AUTO_INCREMENT PRIMARY KEY,
+    name VARCHAR(100),
+    class_name VARCHAR(20),
+    marks INT,
+    username VARCHAR(50) UNIQUE,
+    password VARCHAR(100)
+);
+""")
+
+cur.execute("""
+CREATE TABLE IF NOT EXISTS teachers (
+    id INT AUTO_INCREMENT PRIMARY KEY,
+    name VARCHAR(100),
+    subject VARCHAR(100)
+);
+""")
+
+conn.commit()
+
+# ---------- STUDENT FUNCTIONS ----------
 def add_student():
     name = input("Name: ")
     student_class = input("Class: ")
@@ -15,7 +41,7 @@ def add_student():
     password = input("Password: ")
 
     query = """
-    INSERT INTO students (name, class, marks, username, password)
+    INSERT INTO students (name, class_name, marks, username, password)
     VALUES (%s, %s, %s, %s, %s)
     """
     cur.execute(query, (name, student_class, marks, username, password))
@@ -23,20 +49,26 @@ def add_student():
     print("Student added")
 
 def view_students():
-    cur.execute("SELECT id, name, class, marks FROM students")
+    cur.execute("SELECT id, name, class_name, marks FROM students")
     for s in cur.fetchall():
         print(s)
 
 def update_marks():
     sid = int(input("Student ID: "))
     marks = int(input("New marks: "))
-    cur.execute("UPDATE students SET marks=%s WHERE id=%s", (marks, sid))
+    cur.execute(
+        "UPDATE students SET marks=%s WHERE id=%s",
+        (marks, sid)
+    )
     conn.commit()
     print("Marks updated")
 
 def delete_student():
     sid = int(input("Student ID: "))
-    cur.execute("DELETE FROM students WHERE id=%s", (sid,))
+    cur.execute(
+        "DELETE FROM students WHERE id=%s",
+        (sid,)
+    )
     conn.commit()
     print("Student deleted")
 
@@ -62,7 +94,7 @@ def student_login():
     pwd = input("Password: ")
 
     cur.execute(
-        "SELECT id, name, class, marks FROM students WHERE username=%s AND password=%s",
+        "SELECT id, name, class_name, marks FROM students WHERE username=%s AND password=%s",
         (uname, pwd)
     )
     s = cur.fetchone()
@@ -76,7 +108,7 @@ def student_login():
     else:
         print("Invalid login")
 
-# ---------- MENUS ----------
+# ---------- ADMIN MENU ----------
 def admin_menu():
     while True:
         print("\n--- ADMIN MENU ---")
@@ -104,6 +136,8 @@ def admin_menu():
             view_teachers()
         elif ch == "7":
             break
+        else:
+            print("Invalid choice")
 
 # ---------- MAIN ----------
 while True:
@@ -115,12 +149,11 @@ while True:
     choice = input("Select option: ")
 
     if choice == "1":
-        admin_menu()      # Admin adds students first
+        admin_menu()
     elif choice == "2":
-        student_login()   # Works only after students exist
+        student_login()
     elif choice == "3":
         print("Exiting...")
         break
     else:
         print("Invalid choice")
-
